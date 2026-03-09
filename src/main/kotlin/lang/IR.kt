@@ -1,0 +1,48 @@
+package org.aincraft.lang
+
+sealed class IrInstr {
+    data class LoadConst(val dst: Int, val index: Int) : IrInstr()
+    data class LoadNull(val dst: Int) : IrInstr()
+    data class LoadTrue(val dst: Int) : IrInstr()
+    data class LoadFalse(val dst: Int) : IrInstr()
+    data class LoadGlobal(val dst: Int, val name: String) : IrInstr()
+    data class StoreGlobal(val name: String, val src: Int) : IrInstr()
+    data class BinaryOp(val dst: Int, val op: TokenType, val src1: Int, val src2: Int) : IrInstr()
+    data class UnaryOp(val dst: Int, val op: TokenType, val src: Int) : IrInstr()
+    data class Jump(val target: IrLabel) : IrInstr()
+    data class JumpIfFalse(val src: Int, val target: IrLabel) : IrInstr()
+    data class Label(val label: IrLabel) : IrInstr()
+    data class LoadFunc(
+        val dst: Int,
+        val name: String,
+        val arity: Int,
+        val instrs: List<IrInstr>,
+        val constants: List<Value>
+    ) : IrInstr()
+    data class Call(val dst: Int, val func: Int, val args: List<Int>) : IrInstr()
+    data class Return(val src: Int) : IrInstr()
+    data class Move(val dst: Int, val src: Int): IrInstr()
+    data class GetIndex(val dst: Int, val obj: Int, val index: Int): IrInstr()
+    data class SetIndex(val obj: Int, val index: Int, val src: Int): IrInstr()
+    data class NewArray(val dst: Int, val elements: List<Int>): IrInstr()
+    data class GetField(val dst: Int, val obj: Int, val name: String) : IrInstr()
+    data class SetField(val obj: Int, val name: String, val src: Int) : IrInstr()
+    data class NewInstance(val dst: Int, val classReg: Int, val args: List<Int>) : IrInstr()
+    data class IsType(val dst: Int, val src: Int, val typeName: String) : IrInstr()
+    data class LoadClass(
+        val dst: Int,
+        val name: String,
+        val superClass: String?,  // name of superclass, resolved at runtime from globals
+        val methods: Map<String, MethodInfo>  // methodName -> method info
+    ) : IrInstr()
+    object Break : IrInstr()
+    object Next : IrInstr()
+}
+
+data class MethodInfo(
+    val arity: Int,  // includes implicit self parameter
+    val instrs: List<IrInstr>,
+    val constants: List<Value>
+)
+
+data class IrLabel(val id: Int)
