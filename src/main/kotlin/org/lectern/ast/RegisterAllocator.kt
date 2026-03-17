@@ -48,7 +48,7 @@ class RegisterAllocator(private val numRegs: Int = 16) {
                     allocation[range.reg] = physReg
                     active[physReg] = range
                 } else {
-                    allocation[range.reg] = numParams
+                    error("RegisterAllocator: no spill candidate and no free registers — this should be unreachable")
                 }
             } else {
                 val physReg = freeRegs.removeFirst()
