@@ -147,6 +147,8 @@ class IrCompiler {
                     chunk.classes.add(ClassInfo(instr.name, instr.superClass, methodFuncIndices))
                     chunk.write(OpCode.BUILD_CLASS, dst = instr.dst, imm = classIdx)
                 }
+                is IrInstr.Spill   -> chunk.write(OpCode.SPILL, imm = instr.slot, src1 = instr.src)
+                is IrInstr.Unspill -> chunk.write(OpCode.UNSPILL, dst = instr.dst, imm = instr.slot)
             }
         }
 

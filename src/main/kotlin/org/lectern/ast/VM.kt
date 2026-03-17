@@ -305,6 +305,8 @@ class VM {
                         else -> error("Cannot index: ${obj::class.simpleName}")
                     }
                 }
+                OpCode.SPILL   -> error("SPILL not yet implemented (waiting for spill array in CallFrame)")
+                OpCode.UNSPILL -> error("UNSPILL not yet implemented (waiting for spill array in CallFrame)")
             }
         }
     }
