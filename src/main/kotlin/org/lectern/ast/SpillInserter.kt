@@ -107,7 +107,12 @@ class SpillInserter {
                 is IrInstr.Return      -> instr.copy(src = resolveSrc(instr.src))
                 is IrInstr.JumpIfFalse -> instr.copy(src = resolveSrc(instr.src))
                 is IrInstr.LoadFunc    -> instr.copy(dst = resolveDst(instr.dst))
-                else                   -> instr  // Label, Jump, Break, Next, Spill, Unspill — no virtual regs
+                is IrInstr.Label,
+                is IrInstr.Jump,
+                is IrInstr.Break,
+                is IrInstr.Next,
+                is IrInstr.Spill,
+                is IrInstr.Unspill     -> instr
             }
 
             result.addAll(preInstrs)
