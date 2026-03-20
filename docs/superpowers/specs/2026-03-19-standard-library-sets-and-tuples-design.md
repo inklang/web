@@ -82,6 +82,8 @@ factory constructor: Tuple(arg1, arg2, ...)
   → init() stores args as InternalTuple(items.toList()) in self.fields["__items"]
 ```
 
+**Empty tuple `()`**: Valid. `Tuple()` with zero arguments is the empty tuple literal. Single element `(a,)` requires trailing comma; `(a)` without a trailing comma is grouping, not a tuple.
+
 ### 4. VM Globals (`VM.kt`)
 
 ```kotlin
@@ -132,22 +134,73 @@ Both reuse existing `IrInstr.NewInstance` — no new IR instructions needed.
 
 ### 7. Tuple Indexing
 
-Support `tuple[0]`, `tuple[1]`, etc. via existing `IndexExpr` lowering:
+Support `tuple[0]`, `tuple[1]`, etc. via the existing `IndexExpr` lowering in `AstLowerer.kt`.
+
+Current `IndexExpr` lowering dispatches to `GetIndex` for array. Extend the logic to check the runtime type of the indexed object:
 
 ```kotlin
 is Expr.IndexExpr -> {
-    // existing Array/Map indexing...
-    // extend to Tuple: get from InternalTuple.items
+    val objReg = lowerExpr(expr.obj, freshReg())
+    val indexReg = lowerExpr(expr.index, freshReg())
+    val resultReg = freshReg()
+    // Emit GetIndex as before for array index case
+    emit(IrInstr.GetIndex(resultReg, objReg, indexReg))
+    // In VM, GetIndex handles:
+    //   - InternalList → items[index]
+    //   - InternalMap  → entries[index]
+    //   - InternalTuple → items[index]  (add this case)
+    resultReg
 }
 ```
 
-The `IndexExpr` lowering already handles `GetIndex` IR instruction; extend to check if object is `Instance` with `TupleClass` and use `InternalTuple.items.get(index)`.
+In `VM.executeGetIndex`, after the existing `InternalList` and `InternalMap` checks, add:
+
+```kotlin
+is Value.InternalTuple -> args[1].let { idx ->
+    when (idx) {
+        is Value.Int -> tuple.items.getOrElse(idx.value) { Value.Null }
+        else -> Value.Null  // non-integer index
+    }
+}
+```
+
+**Out-of-bounds behavior**: `getOrElse` returns `Value.Null` for out-of-range indices (consistent with how `Array.get` handles it — see `ArrayClass.get` in `Value.kt` which also returns `Value.Null` on out-of-bounds).
 
 ### 8. Iterator Protocol
 
-Both Set and Tuple use the iterator protocol (`iter()` → `hasNext()` → `next()`) already established by Array. Set needs its own `SetIteratorClass` because iteration over a set requires snapshotting entries into a list at iteration start (to avoid ConcurrentModificationException and provide stable iteration order).
+Both Set and Tuple use the iterator protocol (`iter()` → `hasNext()` → `next()`) already established by Array.
 
-## What Is Not In Scope
+**Tuple** reuses `ArrayIteratorClass` directly because `InternalTuple` is immutable — the items list never changes, so no snapshot is needed and `ConcurrentModificationException` is impossible.
+
+**Set** requires its own `SetIteratorClass` because `MutableSet` is mutated by `add`/`remove`/`clear` during iteration. The `iter()` method must snapshot the set's entries into a `List<Value>` at iteration start:
+
+```
+SetIteratorClass:
+  fields:
+    __entries (InternalSet)    — kept for reference only, not iterated directly
+    __items (List<Value>)      — snapshot of entries.toList() made at iter() call
+    current (Int)              — iteration position
+  hasNext → current < __items.size
+  next    → __items[current]; current++
+```
+
+This ensures `for x in set { set.add(something) }` does not cause ConcurrentModificationException, and that iteration order is stable within a single `iter()` call even if the set is concurrently modified.
+
+## Error Handling
+
+Follows existing Lectern patterns (no new error mechanisms):
+
+| Operation | Invalid Input | Behavior |
+|-----------|--------------|----------|
+| `Tuple.get(i)` | out-of-bounds index (`i < 0` or `i >= size`) | returns `Value.Null` (consistent with `Array.get`) |
+| `Tuple.get(i)` | non-integer index | returns `Value.Null` |
+| `Tuple[bad_index]` | non-integer index expression | handled at VM level, returns `Value.Null` |
+| `Set.remove(i)` | item not present | `MutableSet.remove` returns false; no error thrown |
+| `Set.delete(i)` | item not present | alias for `remove`, same silent behavior |
+| `null` in Set | `null` as element | allowed; `MutableSet.contains(null)` works correctly |
+| `null` in Tuple | `null` as element | allowed; `InternalTuple` stores any `Value` |
+
+No type errors are raised at runtime for these cases — Lectern's type system is dynamic at runtime.
 
 - Set operations `union`, `intersection`, `difference` as built-in methods — can be added later as Lectern stdlib functions
 - Ordered sets or linked sets

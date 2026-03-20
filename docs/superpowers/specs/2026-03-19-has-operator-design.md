@@ -104,16 +104,18 @@ Add case for `IrInstr.HasCheck`:
 `HAS` opcode dispatch:
 
 1. **If object is `Value.Instance`**:
-   - `fieldName` is in a register — call `valueToString()` to get the string key
-   - Check `instance.fields.containsKey(fieldName)`
-   - If not found and `instance.klass.superClass != null`, walk the superClass chain
+   - Get `fieldName` string from `frame.regs[fieldReg]` via `valueToString()`
+   - Check `instance.fields.containsKey(fieldName)` — own fields only (fields are stored per-instance, not on `ClassDescriptor`)
    - Return `true` if found, `false` otherwise
-2. **If object is `Value.Map`**:
-   - `fieldName` is in a register — call `valueToString()` to get the string key
-   - Check `map.containsKey(fieldName)`
+2. **If object is `Value.Instance` with `clazz == MapClass`** (map):
+   - Get `fieldName` string from `frame.regs[fieldReg]` via `valueToString()`
+   - Get entries via `instance.fields["__entries"] as? Value.InternalMap`
+   - Check `entries.entries.containsKey(Value.String(fieldName))`
    - Return `true`/`false`
-3. **If object is `Value.Array`**: return `false` (arrays are out of scope)
+3. **If object is `Value.Instance` with `clazz == ArrayClass`** (array): return `false`
 4. **Otherwise**: return `false`
+
+**Note:** Only own-instance fields are checked. There is no inheritance walk for field lookup — fields are stored per-instance in `instance.fields`, not on `ClassDescriptor`. This is consistent with how `GET_FIELD` works.
 
 ---
 
