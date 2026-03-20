@@ -17,7 +17,6 @@
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.400.0",
     "next": "14.2.5",
-    "next-mdx-remote": "^4.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "shadcn": "^4.1.0",
