@@ -1,13 +1,55 @@
 ---
-title: Introduction
+title: Welcome to ink
 ---
 
-# Introduction
+# Welcome to ink
 
-**inklang** is a compiled scripting language targeting a register-based bytecode VM. It supports first-class functions, string interpolation, classes, and more.
+ink is a modern, expressive scripting language built for embedding in Minecraft servers. It combines clean syntax with powerful features—classes, functions, string interpolation, and more—running on a fast register-based bytecode VM.
 
-## Why inklang?
+## Why ink?
 
-- **Fast**: Compiles to efficient bytecode, runs on a lightweight VM
-- **Simple**: Clean syntax with minimal boilerplate
-- **Extensible**: Build and share packages via the inklang package manager
+- **Clean syntax** — Expressive code that's easy to read and write
+- **First-class functions** — Functions as values, with closures and higher-order functions
+- **Object-oriented** — Classes with inheritance and methods
+- **Fast VM** — Register-based bytecode with SSA optimizations
+- **Built for Minecraft** — Designed to script PaperMC servers
+
+## Quick Example
+
+```
+// Define a function with string interpolation
+fn greet(name) {
+    return "Hello, ${name}!"
+}
+
+print(greet("Player"))  // Hello, Player!
+
+// Classes with inheritance
+class Animal {
+    init(name) {
+        this.name = name
+    }
+
+    speak() {
+        return "${this.name} makes a sound"
+    }
+}
+
+class Dog extends Animal {
+    speak() {
+        return "${this.name} barks!"
+    }
+}
+
+let dog = Dog("Buddy")
+print(dog.speak())  // Buddy barks!
+```
+
+## Getting Started
+
+Ready to write your first ink program? Head over to the [Installation Guide](./getting-started) to set up your environment.
+
+## Resources
+
+- [GitHub Repository](https://github.com/inklang/ink) — Source code and issue tracker
+- [Inklang Discord](https://discord.gg/inklang) — Community chat

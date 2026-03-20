@@ -3,8 +3,17 @@ import Link from 'next/link'
 const docs = [
   { title: 'Introduction', href: '/docs/intro' },
   { title: 'Getting Started', href: '/docs/getting-started' },
-  { title: 'Language Reference', href: '/docs/language-reference' },
-  { title: 'Standard Library', href: '/docs/stdlib' },
+  { title: 'Running Code', href: '/docs/running-code' },
+  { title: 'Variables', href: '/docs/variables' },
+  { title: 'Data Types', href: '/docs/data-types' },
+  { title: 'Operators', href: '/docs/operators' },
+  { title: 'Control Flow', href: '/docs/control-flow' },
+  { title: 'Functions', href: '/docs/functions' },
+  { title: 'Parameters', href: '/docs/parameters' },
+  { title: 'Classes', href: '/docs/classes' },
+  { title: 'Inheritance', href: '/docs/inheritance' },
+  { title: 'Arrays', href: '/docs/arrays' },
+  { title: 'Maps', href: '/docs/maps' },
   { title: 'Examples', href: '/docs/examples' },
 ]
 

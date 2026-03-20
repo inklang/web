@@ -1,21 +1,61 @@
 ---
-title: Getting Started
+title: Installation
 ---
 
-# Getting Started
+# Installation
 
-## Installation
+Get ink running on your machine in seconds.
 
-Download the latest release from GitHub.
+## Install the CLI
 
-## Your First Program
+```bash
+npm install -g @inklang/quill
+```
 
-Create a file `hello.ink`:
+Verify installation:
 
-    fn main() {
-      print("Hello, inklang!")
-    }
+```bash
+quill --version
+```
+
+## Run Your First Program
+
+Create a file called `hello.ink`:
+
+```
+print("Hello, ink!")
+```
 
 Run it:
 
-    ink run hello.ink
+```bash
+quill run hello.ink
+```
+
+You should see:
+
+```
+Hello, ink!
+```
+
+## Command Reference
+
+| Command | Description |
+|---------|-------------|
+| `quill run <file>` | Run an ink program |
+| `quill build <file>` | Build to deployable JAR |
+| `quill --help` | Show all commands |
+
+## File Naming
+
+ink source files use the `.ink` extension:
+
+```
+hello.ink
+myprogram.ink
+game.ink
+```
+
+## Next Steps
+
+Now that ink is installed, let's write [Your First Program](./first-program)!
