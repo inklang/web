@@ -18,6 +18,9 @@ export async function generateStaticParams() {
     .map((f) => ({ slug: f.replace('.mdx', '') }))
 }
 
+// Note: In Next.js 15+, params becomes a Promise and must be awaited.
+// Upgrade to: export default async function DocPage({ params }: { params: Promise<{ slug: string }> })
+// const { slug } = await params
 export default async function DocPage({ params }: { params: { slug: string } }) {
   const { content, frontmatter } = getDoc(params.slug)
   return (
