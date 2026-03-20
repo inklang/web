@@ -16,9 +16,8 @@ Lectern currently has `Map` (hash-based, mutable) and `Array` (list, mutable) as
 
 ### Parsing Notes
 
-- `{...}` set literals: requires lexer/parser support (distinct from block statements — ambiguity resolved by requiring at least one element or disallowing empty braces as blocks)
-- `(...)` tuple literals: requires parser support; ambiguous with grouping parentheses — resolved by requiring 2+ elements or a trailing comma `(1,)` at parse-time
-- Both desugar to factory constructor calls at the AST level (consistent with how `Map()` and array literals work)
+- `{...}` set literals: requires lexer/parser support. `{expr, expr, ...}` with one or more elements parses as a set literal. Empty `{}` is parsed as a block statement, not a set literal. Single-element `{expr}` is valid — `{x}` is a set with one element, distinct from `{ x }` block-with-expression-statement.
+- `(...)` tuple literals: requires parser support; ambiguous with grouping parentheses — resolved by requiring 2+ elements or a trailing comma `(1,)` at parse-time. `(expr)` without comma is grouping, not a tuple. `()` (zero elements) is the empty tuple literal. `(expr,)` (trailing comma) is a single-element tuple.
 
 ## Implementation
 
@@ -134,37 +133,24 @@ Both reuse existing `IrInstr.NewInstance` — no new IR instructions needed.
 
 ### 7. Tuple Indexing
 
-Support `tuple[0]`, `tuple[1]`, etc. via the existing `IndexExpr` lowering in `AstLowerer.kt`.
+Support `tuple[0]`, `tuple[1]`, etc. via the existing `IndexExpr` lowering in `AstLowerer.kt`. The `GetIndex` IR instruction is reused — no new instruction needed.
 
-Current `IndexExpr` lowering dispatches to `GetIndex` for array. Extend the logic to check the runtime type of the indexed object:
-
-```kotlin
-is Expr.IndexExpr -> {
-    val objReg = lowerExpr(expr.obj, freshReg())
-    val indexReg = lowerExpr(expr.index, freshReg())
-    val resultReg = freshReg()
-    // Emit GetIndex as before for array index case
-    emit(IrInstr.GetIndex(resultReg, objReg, indexReg))
-    // In VM, GetIndex handles:
-    //   - InternalList → items[index]
-    //   - InternalMap  → entries[index]
-    //   - InternalTuple → items[index]  (add this case)
-    resultReg
-}
-```
-
-In `VM.executeGetIndex`, after the existing `InternalList` and `InternalMap` checks, add:
+The `IndexExpr` lowering in `AstLowerer.kt` already emits `IrInstr.GetIndex`. Extend the VM's `executeGetIndex` method (which pattern-matches on `obj`) to handle `InternalTuple`:
 
 ```kotlin
-is Value.InternalTuple -> args[1].let { idx ->
+// In VM.executeGetIndex, extend the when clause on obj:
+is Value.InternalTuple -> {
+    val idx = args[1]
     when (idx) {
-        is Value.Int -> tuple.items.getOrElse(idx.value) { Value.Null }
-        else -> Value.Null  // non-integer index
+        is Value.Int -> obj.items.getOrElse(idx.value) { Value.Null }
+        else -> Value.Null
     }
 }
 ```
 
-**Out-of-bounds behavior**: `getOrElse` returns `Value.Null` for out-of-range indices (consistent with how `Array.get` handles it — see `ArrayClass.get` in `Value.kt` which also returns `Value.Null` on out-of-bounds).
+The `GetIndex` instruction already handles `Value.InternalList` and `Value.InternalMap` in the same way — `InternalTuple` is added as a new branch in that same `when` block.
+
+**Out-of-bounds behavior**: `getOrElse` returns `Value.Null` for out-of-range indices (consistent with `Array.get` which also returns `Value.Null` on out-of-bounds via `items.getOrElse(idx) { Value.Null }`).
 
 ### 8. Iterator Protocol
 
@@ -177,14 +163,17 @@ Both Set and Tuple use the iterator protocol (`iter()` → `hasNext()` → `next
 ```
 SetIteratorClass:
   fields:
-    __entries (InternalSet)    — kept for reference only, not iterated directly
-    __items (List<Value>)      — snapshot of entries.toList() made at iter() call
-    current (Int)              — iteration position
-  hasNext → current < __items.size
-  next    → __items[current]; current++
+    __entries (InternalSet)    — held in self.fields["__entries"]
+    __items (InternalList)    — snapshot stored as InternalList(self.fields["__entries"].entries.toList())
+    current (Int)              — stored in self.fields["current"]
+  hasNext → current < (self.fields["__items"] as Value.InternalList).items.size
+  next    → val items = (self.fields["__items"] as Value.InternalList).items
+            val cur = (self.fields["current"] as Value.Int).value
+            self.fields["current"] = Value.Int(cur + 1)
+            items[cur]
 ```
 
-This ensures `for x in set { set.add(something) }` does not cause ConcurrentModificationException, and that iteration order is stable within a single `iter()` call even if the set is concurrently modified.
+The `__items` snapshot is created once in `SetIteratorClass.iter()` by calling `entries.toList()` on the `InternalSet` and wrapping in `InternalList` — matching how `ArrayIteratorClass` stores its items. This ensures `for x in set { set.add(something) }` does not cause `ConcurrentModificationException`, and that iteration order is stable within a single `iter()` call even if the set is concurrently modified.
 
 ## Error Handling
 

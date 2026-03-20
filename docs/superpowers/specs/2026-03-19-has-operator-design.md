@@ -17,10 +17,11 @@ The right-hand side is any expression that evaluates to a string — typically a
 
 ## Semantics
 
-- Returns `true` if the object/map has the named field (own **or inherited** via prototype chain), `false` otherwise
+- Returns `true` if the object/map has the named field (own fields only), `false` otherwise
 - Works on: objects (class instances) and maps
 - Does NOT work on arrays — arrays use numeric indices and this is out of scope
 - The field name expression is evaluated at runtime (must resolve to a string)
+- **No inheritance walk** — only fields set directly on the instance are checked. This is a deliberate limitation to avoid requiring `ClassDescriptor` to track declared field names. See `docs/superpowers/plans/2026-03-19-has-operator-context.md` for rationale and future path.
 
 ---
 
@@ -126,11 +127,14 @@ class Animal {
     init() { this.name = "dog" }
 }
 
-class Dog extends Animal {}
+class Dog extends Animal {
+    init() { this.breed = "poodle" }
+}
 
 let d = Dog()
-d has "name"    // true  (inherited via prototype chain)
-d has "breed"   // false (not present)
+d has "name"    // false (Animal's init set this.name, not Dog's — own fields only)
+d has "breed"   // true  (Dog's init set this.breed)
+d has "age"     // false (not set on this instance)
 
 let m = { "a": 1, "b": 2 }
 m has "a"       // true
@@ -166,12 +170,13 @@ let f = Foo()
 f has "x"    // true
 f has "y"    // false
 
-// Inherited field
+// Subclass: each instance has only its own fields
 class Animal { init() { this.name = "animal" } }
-class Cat extends Animal {}
+class Cat extends Animal { init() { this.meow = "purr" } }
 let c = Cat()
-c has "name"      // true (inherited)
-c has "meow"      // false
+c has "name"      // false (Animal's init, not Cat's — own fields only)
+c has "meow"     // true (Cat's init set this.meow)
+c has "bark"     // false (not set)
 
 // Map
 let m = { "key": 42 }
