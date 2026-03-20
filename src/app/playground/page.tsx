@@ -40,7 +40,7 @@ export default function PlaygroundPage() {
     <div className="flex flex-col h-full">
       {/* Toolbar */}
       <div className="flex items-center gap-3 px-6 py-3 border-b border-zinc-800">
-        <Select onValueChange={(v) => loadExample(parseInt(v))}>
+        <Select<string> onValueChange={(v) => { if (v) loadExample(parseInt(v)) }}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Load example..." />
           </SelectTrigger>

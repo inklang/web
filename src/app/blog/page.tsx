@@ -23,7 +23,7 @@ export default function BlogIndex() {
       <div className="space-y-6">
         {posts.map((post: any) => (
           <Link key={post.slug} href={`/blog/${post.slug}`} className="block group">
-            <p className="text-sm text-zinc-500">{post.date}</p>
+            <p className="text-sm text-zinc-500">{new Date(post.date).toLocaleDateString()}</p>
             <h2 className="text-xl font-semibold group-hover:text-zinc-400 transition-colors">{post.title}</h2>
             {post.excerpt && <p className="text-zinc-400 mt-1">{post.excerpt}</p>}
           </Link>

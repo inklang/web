@@ -17,7 +17,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
   const { content, data } = matter(raw)
   return (
     <div className="p-6 sm:p-10 max-w-3xl mx-auto">
-      <p className="text-sm text-zinc-500 mb-2">{data.date}</p>
+      <p className="text-sm text-zinc-500 mb-2">{new Date(data.date).toLocaleDateString()}</p>
       <h1 className="text-3xl font-bold mb-6">{data.title}</h1>
       <div dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br/>') }} />
       <div className="mt-8 pt-6 border-t border-zinc-800">
