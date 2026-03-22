@@ -4,7 +4,7 @@ export function Nav() {
   return (
     <nav className="border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
       <Link href="/" className="text-xl font-bold tracking-tight">
-        inklang
+        ink
       </Link>
       <div className="flex gap-6 text-sm text-zinc-400">
         <Link href="/docs" className="hover:text-zinc-50 transition-colors">Docs</Link>

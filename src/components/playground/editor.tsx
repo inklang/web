@@ -6,7 +6,7 @@ const EXAMPLES = [
   {
     label: 'Hello World',
     code: `fn main() {
-  print("Hello, inklang!")
+  print("Hello, ink!")
 }`,
   },
   {

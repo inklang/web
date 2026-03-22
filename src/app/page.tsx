@@ -11,7 +11,7 @@ mob Dragon {
     health: 500
 }
 
-// Standard inklang event handling:
+// Standard ink event handling:
 on event:player_death(player) {
     spawn_mob(Zombie, player.location)
 }`
@@ -22,7 +22,7 @@ export default function Home() {
       {/* Hero */}
       <section className="px-6 py-24 max-w-4xl mx-auto text-center">
         <h1 className="text-5xl sm:text-6xl font-bold tracking-tight mb-4">
-          inklang
+          ink
         </h1>
         <p className="text-xl text-zinc-400 mb-2">
           A compiled scripting language for PaperMC servers.

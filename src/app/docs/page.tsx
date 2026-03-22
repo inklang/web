@@ -4,11 +4,11 @@ export default function DocsIndex() {
   return (
     <div>
       <h1 className="text-3xl font-bold mb-4">Documentation</h1>
-      <p className="text-zinc-400 mb-6">Welcome to inklang. Choose a topic to get started.</p>
+      <p className="text-zinc-400 mb-6">Welcome to ink. Choose a topic to get started.</p>
       <div className="grid gap-4 sm:grid-cols-2">
         <Link href="/docs/intro" className="p-4 rounded-lg border border-zinc-800 hover:border-zinc-600 transition-colors">
           <p className="font-medium">Introduction</p>
-          <p className="text-sm text-zinc-500">What is inklang?</p>
+          <p className="text-sm text-zinc-500">What is ink?</p>
         </Link>
         <Link href="/docs/getting-started" className="p-4 rounded-lg border border-zinc-800 hover:border-zinc-600 transition-colors">
           <p className="font-medium">Getting Started</p>

@@ -34,3 +34,7 @@ next-env.d.ts
 
 # github
 .worktrees/
+
+# claude settings (contain secrets)
+.claude/
+settings.json
