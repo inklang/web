@@ -3,6 +3,7 @@ import path from 'path'
 import Link from 'next/link'
 import matter from 'gray-matter'
 import { Button } from '@/components/ui/button'
+import { DocRenderer } from '@/components/doc-renderer'
 
 function getDoc(slug: string) {
   const filePath = path.join(process.cwd(), 'src/content/docs', `${slug}.mdx`)
@@ -26,8 +27,7 @@ export default async function DocPage({ params }: { params: { slug: string } }) 
   return (
     <article className="prose prose-invert prose-zinc max-w-none">
       <h1>{frontmatter.title}</h1>
-      {/* Render MDX — using simple regex replacements for h2/h3/code/pre since next-mdx-remote adds complexity */}
-      <div dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br/>') }} />
+      <DocRenderer content={content} />
       <div className="mt-8 pt-6 border-t border-zinc-800 flex justify-between">
         <Link href="/docs">
           <Button variant="ghost">← Back to Docs</Button>

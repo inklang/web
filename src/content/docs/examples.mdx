@@ -4,208 +4,175 @@ title: Examples
 
 # Examples
 
-Real programs that combine everything you've learned.
+Practical scripts for your PaperMC server. Copy, paste, adapt.
 
-## FizzBuzz
+## Player Join Message
 
-Classic programming challenge:
+Greet players when they join:
 
+```ink
+on event:player_join(player) {
+    print("Welcome to the server, ${player.name}!")
+    player.setScore(0)
+}
 ```
-// FizzBuzz: print numbers 1-20, but:
-// - Multiples of 3 print "Fizz"
-// - Multiples of 5 print "Buzz"
-// - Multiples of both print "FizzBuzz"
 
-for i in 1..21 {
-    if i % 15 == 0 {
-        print("FizzBuzz")
-    } else if i % 3 == 0 {
-        print("Fizz")
-    } else if i % 5 == 0 {
-        print("Buzz")
-    } else {
-        print(i)
+## Broadcast Command
+
+Send a message to all players:
+
+```ink
+fn broadcast(message) {
+    print("[Broadcast] " + message)
+}
+
+broadcast("Server restarting in 5 minutes!")
+```
+
+## Simple Score
+
+Track and update a player's score:
+
+```ink
+on event:player_join(player) {
+    player.setScore(0)
+    print("${player.name} joined with score: 0")
+}
+
+on event:player_kill_player(killer, victim) {
+    let current = killer.getScore()
+    killer.setScore(current + 1)
+    print("${killer.name} now has ${current + 1} kills")
+}
+```
+
+## Countdown Timer
+
+A basic countdown using a loop:
+
+```ink
+fn countdown(seconds) {
+    for i in 0..seconds {
+        print("T-minus ${seconds - i}")
+    }
+    print("Time's up!")
+}
+
+countdown(5)
+```
+
+## Mob Drops
+
+Custom drop logic on death:
+
+```ink
+on event:entity_death(entity, killer) {
+    if killer != null {
+        let mobType = entity.getType()
+        if mobType == "ZOMBIE" {
+            killer.giveItem("rotten_flesh", 1)
+            print("${killer.name} looted a zombie!")
+        }
     }
 }
 ```
 
-## Factorial
+## Random Teleport
 
-Calculate factorials with recursion:
+Teleport a player to a random location:
 
-```
-fn factorial(n) {
-    if n <= 1 {
-        return 1
-    }
-    return n * factorial(n - 1)
+```ink
+fn randomLocation() {
+    let x = random.random() * 1000 - 500
+    let z = random.random() * 1000 - 500
+    return location(x, 64, z)
 }
 
+on event:player_command(player, command) {
+    if command == "/rtp" {
+        player.teleport(randomLocation())
+        print("${player.name} was teleported to ${player.location}")
+    }
+}
+```
+
+## Class-Based Inventory
+
+Manage a player's inventory with a class:
+
+```ink
+class Inventory {
+    fn init(owner) {
+        self.owner = owner
+        self.items = []
+    }
+
+    fn add(item, amount) {
+        self.items.push({"item": item, "amount": amount})
+        print("${self.owner.name} received ${amount}x ${item}")
+    }
+
+    fn show() {
+        print("${self.owner.name}'s inventory:")
+        for entry in self.items {
+            print("  - ${entry.amount}x ${entry.item}")
+        }
+    }
+}
+
+on event:player_join(player) {
+    let inv = Inventory(player)
+    inv.add("diamond", 1)
+    inv.show()
+}
+```
+
+## Range Loop
+
+Iterate over a range of numbers:
+
+```ink
+// Print 1 to 10
 for i in 1..11 {
-    print("${i}! = ${factorial(i)}")
-}
-// 1! = 1
-// 2! = 2
-// 3! = 6
-// ...
-// 10! = 3628800
-```
-
-## Bank Account
-
-OOP example with classes:
-
-```
-class BankAccount {
-    init(owner) {
-        this.owner = owner
-        this.balance = 0
-        this.transactions = []
-    }
-
-    deposit(amount) {
-        if amount <= 0 {
-            print("Deposit must be positive")
-            return false
-        }
-        this.balance = this.balance + amount
-        this.transactions.push("Deposited ${amount}")
-        return true
-    }
-
-    withdraw(amount) {
-        if amount <= 0 {
-            print("Withdrawal must be positive")
-            return false
-        }
-        if amount > this.balance {
-            print("Insufficient funds")
-            return false
-        }
-        this.balance = this.balance - amount
-        this.transactions.push("Withdrew ${amount}")
-        return true
-    }
-
-    getBalance() {
-        return this.balance
-    }
-
-    showHistory() {
-        print("${this.owner}'s Account:")
-        print("Balance: ${this.getBalance()}")
-        print("Transactions:")
-        for tx in this.transactions {
-            print("  - ${tx}")
-        }
-    }
+    print(i)
 }
 
-let account = BankAccount("Alice")
-account.deposit(1000)
-account.deposit(500)
-account.withdraw(200)
-account.withdraw(2000)  // Should fail - insufficient funds
-account.showHistory()
-```
-
-## To-Do List
-
-Building a simple task manager:
-
-```
-class TodoList {
-    init() {
-        this.tasks = []
+// Sum numbers 1 to 100
+fn sumTo(n) {
+    let total = 0
+    for i in 1..n + 1 {
+        total = total + i
     }
-
-    add(task) {
-        this.tasks.push(task)
-        print("Added: ${task}")
-    }
-
-    complete(index) {
-        if index < this.tasks.size() {
-            let task = this.tasks.get(index)
-            print("Completed: ${task}")
-            this.tasks.set(index, null)
-        }
-    }
-
-    show() {
-        print("=== To-Do List ===")
-        let shown = 0
-        for i in 0..this.tasks.size() {
-            let task = this.tasks.get(i)
-            if task != null {
-                print("${shown + 1}. [ ] ${task}")
-                shown = shown + 1
-            }
-        }
-        if shown == 0 {
-            print("All done!")
-        }
-    }
+    return total
 }
 
-let todos = TodoList()
-todos.add("Learn ink")
-todos.add("Build a project")
-todos.add("Write documentation")
-todos.show()
-todos.complete(0)
-todos.show()
+print("Sum 1-100: " + sumTo(100))
 ```
 
-## Fibonacci Sequence
+## String Interpolation
 
-Generate the famous sequence:
+Build messages with embedded expressions:
 
-```
-fn fibonacci(n) {
-    if n <= 1 {
-        return n
-    }
-    return fibonacci(n - 1) + fibonacci(n - 2)
-}
+```ink
+let playerName = "Craftmaster42"
+let kills = 57
+let level = 12
 
-// Print first 10 Fibonacci numbers
-for i in 0..10 {
-    print(fibonacci(i))
-}
-// 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+print("Player: ${playerName}")
+print("${playerName} is level ${level} with ${kills} kills")
+print("K/D ratio: ${kills / level}")
 ```
 
-## Temperature Converter
+## Elvis and Safe Call
 
-Utility program:
+Handle null values safely:
 
-```
-class Temperature {
-    init(celsius) {
-        this.celsius = celsius
-    }
+```ink
+// Elvis operator - use default if null
+let playerName = maybeNull ?? "Anonymous"
+let health = player.getHealth() ?? 20
 
-    toFahrenheit() {
-        return this.celsius * 9 / 5 + 32
-    }
-
-    toKelvin() {
-        return this.celsius + 273.15
-    }
-
-    describe() {
-        return "${this.celsius}C = ${this.toFahrenheit()}F = ${this.toKelvin()}K"
-    }
-}
-
-// Boiling point of water
-let boiling = Temperature(100)
-print(boiling.describe())
-// 100C = 212F = 373.15K
-
-// Freezing point
-let freezing = Temperature(0)
-print(freezing.describe())
-// 0C = 32F = 273.15K
+// Safe call - only access if not null
+let score = player?.getScore()
+let world = player?.location?.world
 ```

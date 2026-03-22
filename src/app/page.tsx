@@ -3,14 +3,17 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 
-const EXAMPLE_CODE = `fn main() {
-  let greeting = "Hello, inklang!"
-  print(greeting)
+const EXAMPLE_CODE = `import spawn_mob, Zombie from mobs;
 
-  let nums = [1, 2, 3, 4, 5]
-  for num in nums {
-    print("Number: " + num)
-  }
+// Grammar injected by the mobs package:
+mob Dragon {
+    name: "Boss"
+    health: 500
+}
+
+// Standard inklang event handling:
+on event:player_death(player) {
+    spawn_mob(Zombie, player.location)
 }`
 
 export default function Home() {
@@ -22,15 +25,15 @@ export default function Home() {
           inklang
         </h1>
         <p className="text-xl text-zinc-400 mb-2">
-          A compiled scripting language for the modern VM.
+          A compiled scripting language for PaperMC servers.
         </p>
-        <p className="text-zinc-500 mb-8">Fast. Simple. Extensible.</p>
+        <p className="text-zinc-500 mb-8">Packages extend the language itself.</p>
         <div className="flex gap-4 justify-center">
           <Link href="/docs">
             <Button size="lg">Get Started</Button>
           </Link>
-          <Link href="/playground">
-            <Button variant="outline" size="lg">Try Playground</Button>
+          <Link href="/docs/intro">
+            <Button variant="outline" size="lg">Learn More</Button>
           </Link>
         </div>
       </section>
@@ -38,6 +41,7 @@ export default function Home() {
       {/* Code Preview */}
       <section className="px-6 pb-16 max-w-3xl mx-auto">
         <Card className="bg-zinc-900 border-zinc-800 p-6 overflow-x-auto">
+          <p className="text-xs text-zinc-500 mb-3">After installing the mobs package:</p>
           <pre className="text-sm text-zinc-300">
             <code>{EXAMPLE_CODE}</code>
           </pre>
@@ -49,20 +53,20 @@ export default function Home() {
       {/* Features */}
       <section className="px-6 py-16 max-w-3xl mx-auto grid sm:grid-cols-2 gap-6">
         <Card className="bg-zinc-900 border-zinc-800 p-6">
+          <h3 className="font-semibold mb-2">Grammar Injection</h3>
+          <p className="text-sm text-zinc-400">Packages can add new syntax directly to the language. Config files that read like native language features.</p>
+        </Card>
+        <Card className="bg-zinc-900 border-zinc-800 p-6">
+          <h3 className="font-semibold mb-2">Bundled APIs</h3>
+          <p className="text-sm text-zinc-400">Packages ship with classes and functions. Import what you need, use it like built-in language tools.</p>
+        </Card>
+        <Card className="bg-zinc-900 border-zinc-800 p-6">
           <h3 className="font-semibold mb-2">Compiled to Bytecode</h3>
-          <p className="text-sm text-zinc-400">Fast execution with a register-based VM optimized for modern hardware.</p>
+          <p className="text-sm text-zinc-400">Fast execution on a register-based VM with SSA optimizations. No interpreted overhead.</p>
         </Card>
         <Card className="bg-zinc-900 border-zinc-800 p-6">
-          <h3 className="font-semibold mb-2">Simple Syntax</h3>
-          <p className="text-sm text-zinc-400">Clean, expressive syntax that reads naturally. No ceremony required.</p>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800 p-6">
-          <h3 className="font-semibold mb-2">First-Class Functions</h3>
-          <p className="text-sm text-zinc-400">Functions are values — pass them around, return them, close over scope.</p>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800 p-6">
-          <h3 className="font-semibold mb-2">Extensible via Packages</h3>
-          <p className="text-sm text-zinc-400">Build and share reusable code with inklang&apos;s package manager.</p>
+          <h3 className="font-semibold mb-2">Clean Syntax</h3>
+          <p className="text-sm text-zinc-400">String interpolation, first-class functions, classes with inheritance, and operators that read naturally.</p>
         </Card>
       </section>
     </div>

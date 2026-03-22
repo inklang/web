@@ -4,13 +4,13 @@ title: Your First Program
 
 # Your First Program
 
-Let's write your first ink program and learn the basics of the language.
+Let's write your first inklang program and learn the basics of the language.
 
 ## Hello, World!
 
 Create a file called `hello.ink`:
 
-```
+```ink
 print("Hello, World!")
 ```
 
@@ -28,15 +28,15 @@ Hello, World!
 
 ## Variables and Types
 
-ink has a few basic data types. Let's explore them:
+inklang has a few basic data types. Let's explore them:
 
-```
+```ink
 // Numbers (ints)
 let age = 25
 let price = 19.99
 
 // Strings
-let name = "ink"
+let name = "inklang"
 let greeting = "Hello, ${name}!"
 
 // Booleans
@@ -45,7 +45,7 @@ let isAwesome = true
 // Null (no value)
 let nothing = null
 
-print(greeting)  // Hello, ink!
+print(greeting)  // Hello, inklang!
 print(age + 5)   // 30
 ```
 
@@ -53,7 +53,7 @@ print(age + 5)   // 30
 
 Use `//` for single-line comments:
 
-```
+```ink
 // This is a comment
 let x = 10  // This is also a comment
 ```
@@ -62,7 +62,7 @@ let x = 10  // This is also a comment
 
 Perform arithmetic and comparisons:
 
-```
+```ink
 let a = 10
 let b = 3
 
@@ -78,7 +78,7 @@ print(a ** b)  // 1000 (power)
 
 Embed expressions directly in strings with `${}`:
 
-```
+```ink
 let name = "Alice"
 let age = 30
 
@@ -90,7 +90,7 @@ print("My name is ${name} and I am ${age} years old")
 
 Control what your program does based on conditions:
 
-```
+```ink
 let score = 85
 
 if score >= 90 {
@@ -108,7 +108,7 @@ if score >= 90 {
 
 Run code multiple times:
 
-```
+```ink
 // While loop
 let count = 0
 while count < 3 {
@@ -128,7 +128,7 @@ for i in 0..5 {
 
 Group code into reusable functions:
 
-```
+```ink
 fn greet(name) {
     return "Hello, ${name}!"
 }
